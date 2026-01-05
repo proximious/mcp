@@ -1,5 +1,5 @@
 # mcp
-Learning how to make a MCP server
+Learning how to make a MCP server for UFC fighter stats
 
 # What is MCP server?
 MCP stands for Model Context Protocol, which is a way for tools and services to talk to AI models in a structued method.
@@ -14,3 +14,4 @@ In this example, I found using a MCP for data analytics works well. We can load 
 For most of this, I googled MCP and found some websites
 
 https://github.com/modelcontextprotocol (Very useful information in many different languages)
+https://github.com/Greco1899/scrape_ufc_stats (Found UFC fighter/fight data)
