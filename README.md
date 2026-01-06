@@ -11,7 +11,8 @@ Using a MCP, we can more safely use AI on databases and internal services (commo
 In this example, I found using a MCP for data analytics works well. We can load in CSV files, query a database, and perform analytics and our MCP server would return a structured result
 
 # Resources used
-For most of this, I googled MCP and found some websites
+For most of this, I googled MCP and found some websites; these are the most used ones
 
 https://github.com/modelcontextprotocol (Very useful information in many different languages)
+
 https://github.com/Greco1899/scrape_ufc_stats (Found UFC fighter/fight data)
