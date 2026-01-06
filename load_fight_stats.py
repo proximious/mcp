@@ -39,7 +39,7 @@ def load_fight_stats(file_path: str) -> pd.DataFrame:
     df = stats_raw.copy()
 
     # Split 'x of y' stats into landed and attempted
-    cols = ['SIG.STR.', 'TOTAL STR.', 'TD', 'HEAD', 'BODY', 'LEG', 'DISTANCE', 'CLINCH', 'GROUND']
+    cols = ['SIG STR', 'TOTAL STR', 'TD', 'HEAD', 'BODY', 'LEG', 'DISTANCE', 'CLINCH', 'GROUND']
     for col in cols:
         df[col + '_landed'], df[col + '_attempted'] = zip(*df[col].map(parse_stat))
 
@@ -47,27 +47,21 @@ def load_fight_stats(file_path: str) -> pd.DataFrame:
     df['KD'] = df['KD'].fillna(0).astype(int)
 
     # Calculate Sig. Striking %
-    df['sig_str_pct'] = df['SIG.STR. %'].replace('---', '0').str.replace("%","").astype(float)
+    df['SIG STR PCT'] = df['SIG STR PCT'].replace('---', '0').str.replace("%","").astype(float)
 
     # Submissions
-    df['sub_attempts'] = df['SUB.ATT'].replace('---', '0').fillna(0).astype(int)
+    df['SUB ATT'] = df['SUB ATT'].replace('---', '0').fillna(0).astype(int)
 
     # Control time
-    df['control_time_sec'] = df['CTRL'].apply(time_to_seconds)
-
-    # Renaming some column names to match schema
-    df.rename(columns={'SIG.STR._landed': 'sig_str_landed'}, inplace=True)
-    df.rename(columns={'SIG.STR._attempted': 'sig_str_attempted'}, inplace=True)
-    df.rename(columns={'TOTAL STR._landed': 'total_str_landed'}, inplace=True)
-    df.rename(columns={'TOTAL STR._attempted': 'total_str_attempted'}, inplace=True)
+    df['CTRL'] = df['CTRL'].apply(time_to_seconds)
 
     # Save info to df
     df_clean = df[[
         'EVENT', 'BOUT', 'FIGHTER', 'KD',
-        'sig_str_landed', 'sig_str_attempted',
-        'total_str_landed', 'total_str_attempted',
-        'TD_landed', 'TD_attempted', 'sub_attempts',
-        'control_time_sec'
+        'SIG STR_landed', 'SIG STR_attempted',
+        'TOTAL STR_landed', 'TOTAL STR_attempted',
+        'TD_landed', 'TD_attempted', 'SUB ATT',
+        'CTRL'
     ]]
 
     return df_clean
