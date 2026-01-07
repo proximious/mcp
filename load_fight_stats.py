@@ -38,6 +38,7 @@ def load_fight_stats(file_path: str) -> pd.DataFrame:
 
     df = stats_raw.copy()
 
+    # I asked ChatGPT to extract the values from each of the cols to calculate the percentages
     # Split 'x of y' stats into landed and attempted
     cols = ['SIG STR', 'TOTAL STR', 'TD', 'HEAD', 'BODY', 'LEG', 'DISTANCE', 'CLINCH', 'GROUND']
     for col in cols:
@@ -61,7 +62,7 @@ def load_fight_stats(file_path: str) -> pd.DataFrame:
         'SIG STR_landed', 'SIG STR_attempted',
         'TOTAL STR_landed', 'TOTAL STR_attempted',
         'TD_landed', 'TD_attempted', 'SUB ATT',
-        'CTRL'
+        'CTRL', 'DISTANCE'
     ]]
 
     return df_clean
