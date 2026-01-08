@@ -107,77 +107,73 @@ def calculate_betting_odds(fighter1_name: str, fighter2_name: str) -> dict:
     # """
     # Base odds
     prob = 0.50
-
+    # Fighter's edge
+    edge = 0.0
     # The favored fighter will have a higher number
     
     # Striking accuracy
     acc_diff = fighter1['SIG STR PCT'] - fighter2['SIG STR PCT']
     if acc_diff > 5:
-        prob += 0.05
+        edge += 0.05
     elif acc_diff < -5:
-        prob -= 0.05
+        edge -= 0.05
 
     # Knockdowns
     kd_diff = fighter1["KD"] - fighter2["KD"]
     if kd_diff >= 0.5:
-        prob += 0.05
+        edge += 0.05
     elif kd_diff <= -0.5:
-        prob -= 0.05
+        edge -= 0.05
 
     # Grappling control 
     ctrl_diff = fighter1["CTRL"] - fighter2["CTRL"]
     td_diff = fighter1["TD_landed"] - fighter2["TD_landed"]
 
     if ctrl_diff > 60 or td_diff >= 1:
-        prob += 0.05
+        edge += 0.05
     elif ctrl_diff < -60 or td_diff <= -1:
-        prob -= 0.05
+        edge -= 0.05
 
     # 4. Strike volume edge (pressure / pace)
     vol_diff = fighter1["TOTAL STR_landed"] - fighter2["TOTAL STR_landed"]
     if vol_diff >= 10:
-        prob += 0.03
+        edge += 0.03
     elif vol_diff <= -10:
-        prob -= 0.03
+        edge -= 0.03
 
     # 5. Submission threat
     sub_diff = fighter1["SUB ATT"] - fighter2["SUB ATT"]
     if sub_diff >= 1:
-        prob += 0.03
+        edge += 0.03
     elif sub_diff <= -1:
-        prob -= 0.03
+        edge -= 0.03
 
     # 6. Distance preference
     distance_diff = fighter1["DISTANCE"] - fighter2["DISTANCE"]
     if distance_diff >= 0.10:
-        prob += 0.02
+        edge += 0.02
     elif distance_diff <= -0.10:
-        prob -= 0.02
+        edge -= 0.02
 
-    odds = probability_to_odds(prob)
+    f1_edge = prob + edge
+    f2_edge = prob - edge * 0.85
 
     return {
-        fighter1_name: odds,
-        fighter2_name: probability_to_odds(1 - prob)
+        fighter1_name: probability_to_odds(f1_edge),
+        fighter2_name: probability_to_odds(f2_edge)
     }
     # """
 
 
 # Helper methods
-def clamp(prob, low=0.30, high=0.70):
-    return max(low, min(high, prob))
-
-
 def probability_to_odds(prob: float) -> int:
-    prob = clamp(prob)
-
     if prob == 0.5:
         return 100
 
     if prob > 0.5:
-        return int(-100 * prob / (1 - prob))
+        return int(-108 * prob / (1 - prob))
     else:
-        return int(100 * (1 - prob) / prob)
+        return int(108 * (1 - prob) / prob)
 
 
 # Asked ChatGPT to make this method

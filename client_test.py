@@ -21,7 +21,7 @@ async def main():
             # Call the one of the available tools
             result = await session.call_tool(
                 name='calculate_betting_odds',
-                arguments={"fighter1_name": "Conor McGregor", "fighter2_name": "Dustin Poirier"}
+                arguments={"fighter1_name": "Justin Gaethje", "fighter2_name": "Ignacio Bahamondes"}
             )
 
             # result = await session.call_tool(
