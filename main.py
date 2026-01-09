@@ -17,20 +17,11 @@ def get_fighter_stats(name: str):
     if df.empty:
         return None
 
-    # Convert numeric columns (used ChatGPT to get most of the bug fixes from these lines)
-    df['KD'] = pd.to_numeric(df['KD'], errors='coerce').fillna(0)
-    df['TD_landed'] = pd.to_numeric(df['TD_landed'], errors='coerce').fillna(0)
-    df['CTRL'] = df['CTRL'].fillna('0:00').apply(ctrl_to_seconds)
-    df['SIG STR_attempted'] = df['SIG STR_attempted'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
-    df['SIG STR_landed'] = df['SIG STR_landed'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
-    df['TOTAL STR_landed'] = df['TOTAL STR_landed'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
-    df['SUB ATT'] = pd.to_numeric(df['SUB ATT'].replace('---', 0), errors='coerce').fillna(0)
-    df['DISTANCE'] = pd.to_numeric(df['DISTANCE'].replace('---', 0).str.replace('%', '', regex=False), errors='coerce').fillna(0)
-
-    # Combine into a single dict
+    # Combine into a single dict to make it look prettier
     return {
         "KD": df['KD'].sum(),
         "TD_landed": df['TD_landed'].sum(),
+        "TD_attempted": df['TD_attempted'].sum(),
         "CTRL": df['CTRL'].sum(),
         "SIG STR PCT": df['SIG STR_landed'].sum() / df['SIG STR_attempted'].sum(),
         "TOTAL STR_landed" : df['TOTAL STR_landed'].sum(),
@@ -40,24 +31,20 @@ def get_fighter_stats(name: str):
 
 # Helper logic for summaries
 def compute_fighter_summary(fighter_name: str) -> dict:
+    """
+    Get the fighter's basic summary
+    """
     stats = get_fighter_stats(fighter_name)
     if stats is None or stats.empty:
         return {"error": f"{fighter_name} not found"}
 
-    total_fights = len(stats)
-    sig_landed = stats['SIG STR_landed'].sum()
-    sig_attempted = stats['SIG STR_attempted'].sum()
-    sig_strike_percent = sig_landed / sig_attempted * 100 if sig_attempted > 0 else 0
-
-    td_landed = stats['TD_landed'].sum()
-    td_attempted = stats['TD_attempted'].sum()
-    td_percent = td_landed / td_attempted * 100 if td_attempted > 0 else 0
-
     return {    
         "Name": fighter_name,
-        "Total fights": total_fights,
-        "Significant strike percent": sig_strike_percent,
-        "Takedown percent" : td_percent
+        "Total fights": len(stats),
+        "Significant strike percent": stats['SIG STR PCT'],
+        "Takedown percent" : stats['TD_landed'] / stats['TD_attempted'],
+        'Knockdowns' : stats['KD'],
+        'Control Time (seconds)' : stats['CTRL']
     }
 
 # These functions with the @mcp.tool() header are the tools we can call from the client side
@@ -65,11 +52,6 @@ def compute_fighter_summary(fighter_name: str) -> dict:
 def fighter_summary(fighter_name: str) -> dict:
     """
     Returning the formatted fighter summary
-    
-    :param fighter_name: name of fighter
-    :type fighter_name: str
-    :return: Description of fighter
-    :rtype: dict
     """
     return compute_fighter_summary(fighter_name)
 
@@ -103,13 +85,12 @@ def calculate_betting_odds(fighter1_name: str, fighter2_name: str) -> dict:
     # Get fighter info
     fighter1 = get_fighter_stats(fighter1_name)
     fighter2 = get_fighter_stats(fighter2_name)
-    # return {fighter1_name : fighter1, fighter2_name : fighter2}
-    # """
+
+    # The favored fighter will have a higher number
     # Base odds
     prob = 0.50
     # Fighter's edge
     edge = 0.0
-    # The favored fighter will have a higher number
     
     # Striking accuracy
     acc_diff = fighter1['SIG STR PCT'] - fighter2['SIG STR PCT']
@@ -155,6 +136,7 @@ def calculate_betting_odds(fighter1_name: str, fighter2_name: str) -> dict:
     elif distance_diff <= -0.10:
         edge -= 0.02
 
+    # Creating an edge for each fighter
     f1_edge = prob + edge
     f2_edge = prob - edge * 0.85
 
@@ -162,7 +144,6 @@ def calculate_betting_odds(fighter1_name: str, fighter2_name: str) -> dict:
         fighter1_name: probability_to_odds(f1_edge),
         fighter2_name: probability_to_odds(f2_edge)
     }
-    # """
 
 
 # Helper methods

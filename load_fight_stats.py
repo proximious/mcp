@@ -21,13 +21,13 @@ def time_to_seconds(t):
     Asked ChatGPT to easily parse the seconds out of the file
     Parse fight time into seconds
     """
-    if pd.isna(t) or t.strip() == "":
-        return None
-    try:
-        m, s = t.split(":")
-        return int(m) * 60 + int(s)
-    except Exception:
-        return None
+    if t in ("---", "0:00", 0, 0.0):
+        return 0
+    t_str = str(t)
+    if ":" not in t_str:
+        return 0
+    m, s = t_str.split(":")
+    return int(m) * 60 + int(s)
 
 
 def load_fight_stats(file_path: str) -> pd.DataFrame:
@@ -44,17 +44,16 @@ def load_fight_stats(file_path: str) -> pd.DataFrame:
     for col in cols:
         df[col + '_landed'], df[col + '_attempted'] = zip(*df[col].map(parse_stat))
 
-    # Turn KnockDowns to integer instead of float
-    df['KD'] = df['KD'].fillna(0).astype(int)
-
-    # Calculate Sig. Striking %
-    df['SIG STR PCT'] = df['SIG STR PCT'].replace('---', '0').str.replace("%","").astype(float)
-
-    # Submissions
-    df['SUB ATT'] = df['SUB ATT'].replace('---', '0').fillna(0).astype(int)
-
-    # Control time
-    df['CTRL'] = df['CTRL'].apply(time_to_seconds)
+    # Convert numeric columns (used ChatGPT to get most of the bug fixes from these lines)
+    df['KD'] = pd.to_numeric(df['KD'], errors='coerce').fillna(0)
+    df['TD_landed'] = pd.to_numeric(df['TD_landed'], errors='coerce').fillna(0)
+    df['TD_attempted'] = pd.to_numeric(df['TD_attempted'], errors='coerce').fillna(0)
+    df['CTRL'] = df['CTRL'].fillna('0:00').apply(time_to_seconds)
+    df['SIG STR_attempted'] = df['SIG STR_attempted'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
+    df['SIG STR_landed'] = df['SIG STR_landed'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
+    df['TOTAL STR_landed'] = df['TOTAL STR_landed'].apply(lambda x: int(str(x).split(" of ")[0]) if x != '---' else 0)
+    df['SUB ATT'] = pd.to_numeric(df['SUB ATT'].replace('---', 0), errors='coerce').fillna(0)
+    df['DISTANCE'] = pd.to_numeric(df['DISTANCE'].replace('---', 0).str.replace('%', '', regex=False), errors='coerce').fillna(0)
 
     # Save info to df
     df_clean = df[[
