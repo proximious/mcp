@@ -95,46 +95,46 @@ def calculate_betting_odds(fighter1_name: str, fighter2_name: str) -> dict:
     # Striking accuracy
     acc_diff = fighter1['SIG STR PCT'] - fighter2['SIG STR PCT']
     if acc_diff > 5:
-        edge += 0.05
+        edge += 0.06
     elif acc_diff < -5:
-        edge -= 0.05
+        edge -= 0.06
 
     # Knockdowns
     kd_diff = fighter1["KD"] - fighter2["KD"]
     if kd_diff >= 0.5:
-        edge += 0.05
+        edge += 0.06
     elif kd_diff <= -0.5:
-        edge -= 0.05
+        edge -= 0.06
 
     # Grappling control 
     ctrl_diff = fighter1["CTRL"] - fighter2["CTRL"]
     td_diff = fighter1["TD_landed"] - fighter2["TD_landed"]
 
     if ctrl_diff > 60 or td_diff >= 1:
-        edge += 0.05
+        edge += 0.06
     elif ctrl_diff < -60 or td_diff <= -1:
-        edge -= 0.05
+        edge -= 0.06
 
     # 4. Strike volume edge (pressure / pace)
     vol_diff = fighter1["TOTAL STR_landed"] - fighter2["TOTAL STR_landed"]
     if vol_diff >= 10:
-        edge += 0.03
+        edge += 0.04
     elif vol_diff <= -10:
-        edge -= 0.03
+        edge -= 0.04
 
     # 5. Submission threat
     sub_diff = fighter1["SUB ATT"] - fighter2["SUB ATT"]
     if sub_diff >= 1:
-        edge += 0.03
+        edge += 0.04
     elif sub_diff <= -1:
-        edge -= 0.03
+        edge -= 0.04
 
     # 6. Distance preference
     distance_diff = fighter1["DISTANCE"] - fighter2["DISTANCE"]
     if distance_diff >= 0.10:
-        edge += 0.02
+        edge += 0.04
     elif distance_diff <= -0.10:
-        edge -= 0.02
+        edge -= 0.04
 
     # Creating an edge for each fighter
     f1_edge = prob + edge

@@ -21,13 +21,11 @@ async def main():
             # Call the one of the available tools
             result = await session.call_tool(
                 name='calculate_betting_odds',
-                arguments={"fighter1_name": "Ignacio Bahamondes", "fighter2_name": "Justin Gaethje"}
+                arguments={"fighter1_name": "Kamaru Usman", "fighter2_name": "Belal Muhammad"}
+                #arguments={"fighter1_name": "Shavkat Rakhmonov", "fighter2_name": "Colby Covington"} 
+                #arguments={"fighter1_name": "Islam Makhachev", "fighter2_name": "Grant Dawson"} 
+                
             )
-
-            # result = await session.call_tool(
-            #     name='fighter_summary',
-            #     arguments={"fighter_name": "Conor McGregor"}
-            # )
 
             # CallToolResult objects have structured content attributes
             print("Result:", result.content[0].text)
